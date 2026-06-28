@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prime Pay Dashboard</title>
+    <!-- Google Fonts for Premium Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #0b111e; color: #ffffff; overflow-x: hidden; }
+        .header { display: flex; align-items: center; padding: 15px 20px; background: #111a2e; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .menu-btn { background: #1e293b; border: 1px solid #334155; color: #a855f7; font-size: 20px; padding: 10px 14px; border-radius: 10px; cursor: pointer; outline: none; }
+        .header-brand { display: flex; align-items: center; gap: 10px; margin-left: 15px; margin-right: auto; }
+        .header-brand .logo-img { height: 32px; width: auto; }
+        .brand-text { font-size: 20px; font-weight: 800; font-style: italic; color: #ffffff; letter-spacing: 1px; }
+        .brand-text .text-red { color: #ff0011; }
+        
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; background: #111a2e; z-index: 100; transition: left 0.3s ease; box-shadow: 5px 0 15px rgba(0,0,0,0.5); overflow-y: auto; }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; }
+        .close-btn { color: #ef4444; font-size: 24px; cursor: pointer; }
+        .sidebar-menu { list-style: none; padding: 15px 0; }
+        .sidebar-menu li a { color: #cbd5e1; text-decoration: none; display: flex; align-items: center; padding: 15px 25px; font-size: 15px; transition: 0.2s; }
+        .sidebar-menu li a i { margin-right: 15px; font-size: 18px; color: #a855f7; width: 25px; }
+        .sidebar-menu li a:hover { background: #1e293b; color: #ffffff; }
+
+        .container { padding: 20px; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .balance-card { background: linear-gradient(135deg, #024eb5 0%, #007bff 100%); border-radius: 20px; padding: 25px 20px; position: relative; box-shadow: 0 10px 20px rgba(0, 123, 255, 0.2); margin-bottom: 25px; overflow: hidden; }
+        .balance-card::after { content: ''; position: absolute; right: -20px; bottom: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        .balance-title { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .balance-amount { font-size: 40px; font-weight: 700; margin-top: 5px; display: flex; align-items: center; justify-content: space-between; }
+        .refresh-btn { background: rgba(255, 255, 255, 0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 2; }
+
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 10px; background: #111a2e; padding: 20px 10px; border-radius: 20px; border: 1px solid #1e293b; margin-bottom: 25px; }
+        .action-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; gap: 10px; }
+        .icon-box { width: 50px; height: 50px; background: #1e293b; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 20px; color: #a855f7; transition: background 0.3s; }
+        .action-name { color: #cbd5e1; font-size: 11px; font-weight: 500; white-space: nowrap; }
+
+        .support-btn { width: 100%; background: linear-gradient(90deg, #a855f7 0%, #7e22ce 100%); color: white; border: none; padding: 16px; border-radius: 15px; font-size: 16px; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3); cursor: pointer; margin-bottom: 25px; }
+        .history-section h3 { font-size: 16px; color: #94a3b8; margin-bottom: 10px; font-weight: 500; }
+        .history-card { background: #111a2e; border: 1px solid #1e293b; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .hist-left { display: flex; align-items: center; gap: 15px; }
+        .hist-icon { width: 45px; height: 45px; background: rgba(34, 197, 94, 0.1); color: #22c55e; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .hist-details p { color: #fff; font-size: 14px; font-weight: 500; }
+        .hist-details span { color: #64748b; font-size: 11px; }
+        .hist-amount { color: #22c55e; font-weight: 600; font-size: 16px; }
+
+        /* Animations */
+        .action-item, .support-btn, .menu-btn, .refresh-btn, .sidebar-menu li a, .close-btn { transition: transform 0.1s ease-in-out; will-change: transform; }
+        .action-item:active, .support-btn:active, .menu-btn:active, .refresh-btn:active, .sidebar-menu li a:active, .close-btn:active { transform: scale(0.90); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Menu (All Links Updated) -->
+    <div class="sidebar-overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebarMenu">
+        <div class="sidebar-header">
+            <div class="header-brand">
+                <img src="https://i.ibb.co/XZxPW7Ny/file-00000000ee587206bea429c1c22c95c6.png" alt="Logo" class="logo-img">
+                <span class="brand-text"><span class="text-red">PRIME</span> PAY</span>
+            </div>
+            <i class="fas fa-times close-btn click-sound" id="closeBtn"></i>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html" class="click-sound"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="add-fund.html" class="click-sound"><i class="fas fa-plus-circle"></i> Add Fund</a></li>
+            <li><a href="withdraw.html" class="click-sound"><i class="fas fa-building-columns"></i> Withdraw</a></li>
+            <li><a href="pay-user.html" class="click-sound"><i class="fas fa-paper-plane"></i> Pay User</a></li>
+            <li><a href="api-setting.html" class="click-sound"><i class="fas fa-code"></i> Api Setting</a></li>
+            <li><a href="gift-code.html" class="click-sound"><i class="fas fa-gift"></i> Gift Code</a></li>
+            <li><a href="bulk-pay.html" class="click-sound"><i class="fas fa-layer-group"></i> Bulk Pay</a></li>
+            <li><a href="bot-alert.html" class="click-sound"><i class="fas fa-robot"></i> Bot Alert</a></li>
+            <li><a href="support.html" class="click-sound"><i class="fas fa-headset"></i> Support</a></li>
+            <!-- Telegram Official Channel Link -->
+            <li><a href="https://t.me/PrimePayOfficial" target="_blank" class="click-sound"><i class="fas fa-bullhorn"></i> Official Channel</a></li>
+            <li><a href="login.html" class="click-sound"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <header class="header">
+        <button class="menu-btn click-sound" id="openMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="header-brand">
+            <img src="https://i.ibb.co/XZxPW7Ny/file-00000000ee587206bea429c1c22c95c6.png" alt="Prime Pay Logo" class="logo-img">
+            <span class="brand-text"><span class="text-red">PRIME</span> PAY</span>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="balance-card">
+            <div class="balance-title"><i class="fas fa-wallet"></i> BALANCE</div>
+            <div class="balance-amount">
+                ₹0.00
+                <button class="refresh-btn click-sound"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+
+        <!-- Action Grid (All Links Updated) -->
+        <div class="action-grid">
+            <a href="add-fund.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-plus"></i></div>
+                <span class="action-name">Add Fund</span>
+            </a>
+            <a href="withdraw.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-building-columns"></i></div>
+                <span class="action-name">Withdraw</span>
+            </a>
+            <a href="pay-user.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-paper-plane"></i></div>
+                <span class="action-name">Pay User</span>
+            </a>
+            <a href="api-setting.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-code"></i></div>
+                <span class="action-name">Api Setting</span>
+            </a>
+            <a href="gift-code.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-gift"></i></div>
+                <span class="action-name">Gift Code</span>
+            </a>
+            <a href="bulk-pay.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-layer-group"></i></div>
+                <span class="action-name">Bulk Pay</span>
+            </a>
+            <a href="bot-alert.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-robot"></i></div>
+                <span class="action-name">Bot Alert</span>
+            </a>
+            <a href="history.html" class="action-item click-sound">
+                <div class="icon-box"><i class="fas fa-history"></i></div>
+                <span class="action-name">History</span>
+            </a>
+        </div>
+
+        <!-- Support Button updated to open support.html -->
+        <button class="support-btn click-sound" onclick="window.location.href='support.html'">
+            <i class="fas fa-headset"></i> SUPPORT
+        </button>
+
+        <div class="history-section">
+            <h3>Recent History</h3>
+            <div class="history-card">
+                <div class="hist-left">
+                    <div class="hist-icon"><i class="fas fa-arrow-down"></i></div>
+                    <div class="hist-details">
+                        <p>Funds Added</p>
+                        <span>Today, 10:30 AM</span>
+                    </div>
+                </div>
+                <div class="hist-amount">+₹500.00</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const openMenuBtn = document.getElementById('openMenuBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const sidebarMenu = document.getElementById('sidebarMenu');
+        const overlay = document.getElementById('overlay');
+
+        openMenuBtn.addEventListener('click', () => { sidebarMenu.classList.add('active'); overlay.classList.add('active'); });
+        closeBtn.addEventListener('click', () => { sidebarMenu.classList.remove('active'); overlay.classList.remove('active'); });
+        overlay.addEventListener('click', () => { sidebarMenu.classList.remove('active'); overlay.classList.remove('active'); });
+
+        function playClickSound() {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
+            gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            osc.connect(gainNode); gainNode.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 0.05);
+        }
+
+        document.querySelectorAll('.click-sound, .action-item').forEach(btn => {
+            btn.addEventListener('mousedown', playClickSound);
+            btn.addEventListener('touchstart', playClickSound, {passive: true});
+        });
+    </script>
+</body>
+</html>
