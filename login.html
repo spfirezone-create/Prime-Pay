@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Prime Pay - Login</title>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6.4.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f8fafc; /* Very light gray to make the white card pop */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100dvh;
+            overflow: hidden;
+            color: #0f172a;
+        }
+
+        .app-container {
+            width: 100%; max-width: 480px;
+            padding: 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100%;
+        }
+
+        /* --- LOGIN CARD --- */
+        .auth-card {
+            background: #ffffff;
+            width: 100%;
+            border-radius: 30px;
+            padding: 40px 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Top Icon */
+        .icon-top {
+            width: 65px; height: 65px;
+            background: #e0f2fe;
+            color: #2563eb;
+            font-size: 1.8rem;
+            border-radius: 18px;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Headings */
+        .auth-card h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .auth-card p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* Inputs */
+        .input-group {
+            width: 100%;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid #f1f5f9;
+            border-radius: 14px;
+            overflow: hidden;
+            height: 55px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: #3b82f6;
+        }
+
+        .prefix {
+            padding: 0 15px;
+            font-weight: 700;
+            color: #0f172a;
+            border-right: 1.5px solid #e2e8f0;
+        }
+
+        input {
+            flex: 1;
+            height: 100%;
+            border: none;
+            background: transparent;
+            padding: 0 15px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #0f172a;
+            outline: none;
+        }
+
+        input::placeholder { color: #94a3b8; font-weight: 500; }
+
+        .normal-input {
+            background: #f8fafc;
+            border: 1.5px solid #f1f5f9;
+            border-radius: 14px;
+            height: 55px;
+            padding: 0 20px;
+            transition: border-color 0.3s ease;
+        }
+
+        .normal-input:focus { border-color: #3b82f6; }
+
+        /* Button */
+        .primary-btn {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            height: 55px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        /* Footer Links */
+        .bottom-link {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .bottom-link a {
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        /* --- LOADING OVERLAY --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1; visibility: visible;
+        }
+
+        .spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #e0f2fe;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: #60a5fa;
+            font-weight: 700;
+            letter-spacing: 3px;
+            font-size: 0.85rem;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Global Click Effect */
+        .click-sound {
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; user-select: none;
+        }
+        .click-sound:active { transform: scale(0.92); }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">LOADING...</div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container">
+        
+        <div class="auth-card" id="authCard">
+            <!-- Icon -->
+            <div class="icon-top">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            
+            <!-- Headings -->
+            <h1>WELCOME BACK</h1>
+            <p>Login to your Prime Pay</p>
+
+            <!-- Form -->
+            <div class="input-group">
+                <label>MOBILE NUMBER</label>
+                <div class="input-wrapper">
+                    <span class="prefix">+91</span>
+                    <input type="tel" placeholder="10 Digit Number" maxlength="10">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>PASSWORD</label>
+                <input type="password" class="normal-input" placeholder="Password">
+            </div>
+
+            <button class="primary-btn click-sound" onclick="processLogin()">LOGIN TO ACCOUNT</button>
+
+            <div class="bottom-link">
+                Don't have an account?<br>
+                <a href="signup.html" class="click-sound" style="display: inline-block;">Create new account</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- WEB AUDIO API (CLICK SOUND) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function playClickSound() {
+            if (!audioCtx) { audioCtx = new AudioContext(); }
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.05);
+        }
+
+        // Attach listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.click-sound').forEach(el => {
+                el.addEventListener('pointerdown', playClickSound);
+            });
+        });
+
+        // --- LOGIN & LOADING LOGIC ---
+        function processLogin() {
+            const overlay = document.getElementById('loadingOverlay');
+            
+            // Show loading screen
+            overlay.classList.add('active');
+            
+            // Background API check simulation... wait for 2 seconds then go to home
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

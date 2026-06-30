@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Prime Pay - Add Money</title>
+    <title>Prime Pay - Withdraw</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,30 +34,26 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
 
-        .page-header h1 { font-size: 1.2rem; font-weight: 700; color: #0f172a; letter-spacing: 0.5px; }
+        .page-header h1 { font-size: 1.2rem; font-weight: 700; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
 
-        /* --- MAIN CARD --- */
+        /* --- BALANCE CARD --- */
+        .balance-card {
+            background: #ffffff; border-radius: 18px; padding: 25px 20px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .balance-card span { font-size: 0.8rem; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; }
+        .balance-card h2 { font-size: 1.6rem; font-weight: 800; color: #2563eb; margin: 0; }
+
+        /* --- MAIN FORM CARD --- */
         .main-card {
-            background: #ffffff; border-radius: 24px; padding: 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 25px;
+            background: #ffffff; border-radius: 24px; padding: 25px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 20px;
         }
 
-        /* --- BLUE QR CONTAINER --- */
-        .qr-container {
-            background: #2563eb; border-radius: 16px; padding: 20px;
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
-        }
-
-        .qr-container p { color: #ffffff; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; }
-
-        .qr-box { background: #ffffff; padding: 10px; border-radius: 12px; display: flex; justify-content: center; align-items: center; width: 180px; height: 180px; }
-        .qr-box img { width: 100%; height: 100%; object-fit: contain; border-radius: 8px; }
-
-        /* --- FORM DETAILS --- */
-        .section-title { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-
-        .input-group { display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        
+        .input-group label { font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 1px; text-transform: uppercase; }
 
         input {
             width: 100%; background: #f8fafc; border: 1.5px solid #f1f5f9; border-radius: 14px;
@@ -67,14 +63,14 @@
         input:focus { border-color: #2563eb; }
         input::placeholder { color: #94a3b8; font-weight: 600; }
 
-        /* --- BUTTON --- */
+        /* --- BUTTON (Matching Blue Add Fund Style) --- */
         .primary-btn {
             width: 100%; background: #2563eb; color: #ffffff;
             border: none; border-radius: 14px; height: 55px;
             font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
             display: flex; justify-content: center; align-items: center; gap: 10px;
             box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-            transition: all 0.3s ease;
+            margin-top: 10px; transition: all 0.3s ease;
         }
 
         /* Global Click Effect */
@@ -89,31 +85,30 @@
         <!-- HEADER -->
         <header class="page-header">
             <a href="index.html" class="back-btn click-sound"><i class="fa-solid fa-arrow-left"></i></a>
-            <h1>ADD MONEY</h1>
+            <h1>WITHDRAW</h1>
         </header>
+
+        <!-- BALANCE STRIP -->
+        <div class="balance-card click-sound">
+            <span>Available Balance</span>
+            <h2>₹0.00</h2>
+        </div>
 
         <!-- MAIN CARD -->
         <div class="main-card">
             
-            <!-- QR Section -->
-            <div class="qr-container click-sound">
-                <p>Scan To Pay</p>
-                <div class="qr-box">
-                    <img src="https://i.ibb.co/k2fMFWx1/file-00000000597471fa88f5470b7b45225f.png" alt="Company QR Code">
-                </div>
+            <div class="input-group">
+                <label>YOUR UPI ID</label>
+                <input type="text" id="upiId" placeholder="yourname@upi">
             </div>
 
-            <!-- Form Section -->
-            <div class="form-section">
-                <p class="section-title"><i class="fa-solid fa-file-invoice-dollar" style="color: #3b82f6;"></i> SUBMIT DETAILS</p>
-                <div class="input-group">
-                    <input type="text" id="utrInput" placeholder="12-Digit UTR" maxlength="12">
-                    <input type="number" id="amountInput" placeholder="Amount (₹)">
-                </div>
+            <div class="input-group">
+                <label>AMOUNT (₹)</label>
+                <input type="number" id="withAmount" placeholder="Min ₹10">
             </div>
 
-            <button class="primary-btn click-sound" id="submitBtn" onclick="processPayment()">
-                <i class="fa-solid fa-circle-check"></i> SUBMIT REQUEST
+            <button class="primary-btn click-sound" id="withdrawBtn" onclick="processWithdraw()">
+                <i class="fa-solid fa-building-columns"></i> WITHDRAW
             </button>
             
         </div>
@@ -142,13 +137,18 @@
         document.querySelectorAll('.click-sound').forEach(el => { el.addEventListener('pointerdown', playClickSound); });
 
         // Simulated API Loading State
-        function processPayment() {
-            const btn = document.getElementById('submitBtn');
-            const utr = document.getElementById('utrInput');
-            const amt = document.getElementById('amountInput');
+        function processWithdraw() {
+            const btn = document.getElementById('withdrawBtn');
+            const upi = document.getElementById('upiId');
+            const amt = document.getElementById('withAmount');
 
-            if(utr.value === '' || amt.value === '') {
-                alert('Please enter UTR and Amount!');
+            if(upi.value === '' || amt.value === '') {
+                alert('Please enter UPI ID and Amount!');
+                return;
+            }
+
+            if(Number(amt.value) < 10) {
+                alert('Minimum withdrawal amount is ₹10');
                 return;
             }
 
@@ -159,16 +159,16 @@
 
             // State 2: Success
             setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> REQUEST SUBMITTED';
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> REQUEST SENT';
                 btn.style.backgroundColor = '#10b981'; // Success Green
                 btn.style.opacity = '1';
                 
                 // State 3: Reset
                 setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> SUBMIT REQUEST';
+                    btn.innerHTML = '<i class="fa-solid fa-building-columns"></i> WITHDRAW';
                     btn.style.backgroundColor = ''; // Revert to Blue
                     btn.style.pointerEvents = 'auto';
-                    utr.value = ''; amt.value = '';
+                    upi.value = ''; amt.value = '';
                 }, 2500);
             }, 1500);
         }
