@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PRIME PAY</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Updated Font to Poppins -->
+    <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
@@ -29,12 +33,191 @@
         .glass { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .blue-grad { background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); color: white; }
         
-        /* Updated Animation */
+        /* Click Animation */
         .tap { transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
         .tap:active { transform: scale(0.90); }
         
         .app-screen { min-height: 100vh; width: 100%; }
         input, textarea, select { color: inherit !important; }
+        input::placeholder, textarea::placeholder { color: #94a3b8; }
+        
+        /* --- DARK THEME OVERRIDES --- */
+        body.dark-theme { background-color: #0b111e !important; color: #ffffff !important; }
+        body.dark-theme .app-screen, body.dark-theme #global-loader { background-color: #0b111e !important; }
+        body.dark-theme .bg-white, body.dark-theme .bg-slate-50, body.dark-theme .bg-slate-100 { background-color: #111a2e !important; border-color: #1e293b !important; }
+        body.dark-theme .text-slate-800, body.dark-theme .text-slate-700, body.dark-theme .text-slate-600 { color: #ffffff !important; }
+        body.dark-theme .text-slate-500, body.dark-theme .text-slate-400 { color: #94a3b8 !important; }
+        body.dark-theme .pay { color: #ffffff !important; }
+        body.dark-theme #sidebar { background-color: #0b111e !important; border-right: 1px solid #1e293b; }
+        body.dark-theme input, body.dark-theme textarea, body.dark-theme select { background-color: #0b111e !important; color: #ffffff !important; border-color: #1e293b !important; }
+        
+        /* --- LOADER --- */
+        #global-loader { position: fixed; inset: 0; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: background-color 0.3s; }
+        .loader-wheel { border: 4px solid #f1f5f9; border-top-color: #2563eb; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { margin-top: 20px; color: #60a5fa; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body class="max-w-md mx-auto relative overflow-x-hidden">
+
+<!-- FULL SCREEN LOADER -->
+<div id="global-loader">
+    <div class="loader-wheel"></div>
+    <p class="loader-text">LOADING...</p>
+</div>
+
+<!-- ==============================================
+     1. MAIN DASHBOARD
+=============================================== -->
+<div id="main-dashboard" class="app-screen hidden pb-24">
+    <header class="p-6 flex justify-between items-center bg-white shadow-sm mb-6 rounded-b-3xl">
+        <div onclick="document.getElementById('sidebar').classList.remove('-translate-x-full')" class="w-11 h-11 bg-slate-50 rounded-full flex items-center justify-center tap cursor-pointer border border-slate-200"><i class="fa-solid fa-bars-staggered text-slate-700"></i></div>
+        
+        <div class="brand-logo tap" onclick="location.reload()">
+            <span class="prime">PRIME</span> <span class="pay">PAY</span>
+        </div>
+        
+        <div id="themeToggleBtn" class="w-11 h-11 bg-slate-50 rounded-full flex items-center justify-center text-slate-700 tap border border-slate-200">
+            <i class="fa-solid fa-moon"></i>
+        </div>
+    </header>
+
+    <div class="px-6 space-y-6 text-center">
+        <!-- Balance Card -->
+        <div class="blue-grad p-8 rounded-[2rem] shadow-xl shadow-blue-200 tap">
+            <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">Total Balance</p>
+            <h1 id="main-balance" class="text-4xl font-black">₹0.00</h1>
+        </div>
+
+        <!-- 4 Grid Actions -->
+        <div class="grid grid-cols-4 gap-3 bg-white p-4 rounded-[2rem] shadow-sm border border-slate-100">
+            <div onclick="showScreen('add-fund')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-plus text-blue-600 text-lg"></i></div>
+                <p class="text-[9px] uppercase font-bold text-slate-700 tracking-wider">Add Fund</p>
+            </div>
+            <div onclick="showScreen('withdraw-screen')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-building-columns text-emerald-600 text-lg"></i></div>
+                <p class="text-[9px] uppercase font-bold text-slate-700 tracking-wider">Withdraw</p>
+            </div>
+            <div onclick="showScreen('pay-screen')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-paper-plane text-purple-600 text-lg"></i></div>
+                <p class="text-[9px] uppercase font-bold text-slate-700 tracking-wider">Pay</p>
+            </div>
+            <div onclick="showScreen('history-screen')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-clock-rotate-left text-orange-600 text-lg"></i></div>
+                <p class="text-[9px] uppercase font-bold text-slate-700 tracking-wider">History</p>
+            </div>
+        </div>
+
+        <!-- 2 Grid Actions -->
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="showScreen('claim-screen')" class="w-full bg-white border border-slate-200 p-6 rounded-[2rem] flex flex-col items-center justify-center gap-3 tap shadow-sm">
+                <i class="fa-solid fa-gift text-pink-500 text-3xl"></i>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Gift Codes</span>
+            </button>
+            <button onclick="document.getElementById('bulk-balance-display').innerText = '₹' + (window.currentUser?.balance||0); showScreen('bulk-screen');" class="w-full bg-white border border-slate-200 p-6 rounded-[2rem] flex flex-col items-center justify-center gap-3 tap shadow-sm">
+                <i class="fa-solid fa-layer-group text-blue-500 text-3xl"></i>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Bulk Pay</span>
+            </button>
+        </div>
+
+        <!-- Lifafa System -->
+        <button onclick="showScreen('lifafa-manager-screen'); loadMyLifafas();" class="w-full bg-white border border-slate-200 p-5 rounded-2xl flex items-center justify-between tap shadow-sm mt-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-envelope-open-text text-red-500 text-xl"></i></div>
+                <div class="text-left">
+                    <span class="text-sm font-bold text-slate-800 block">Lifafa System</span>
+                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Create & Share Giveaways</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-400"></i>
+        </button>
+    </div>
+</div>
+
+<!-- ==============================================
+     2. SIDEBAR MENU
+=============================================== -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[1000] shadow-2xl transform -translate-x-full transition-transform duration-300">
+    <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h2 class="font-bold text-lg text-blue-600 uppercase tracking-wider">MENU</h2>
+        <div onclick="document.getElementById('sidebar').classList.add('-translate-x-full')" class="w-9 h-9 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-600 tap"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="p-6 space-y-3">
+        <div onclick="showScreen('profile-screen')" class="p-4 bg-slate-50 rounded-xl flex items-center gap-4 text-sm font-bold text-slate-700 uppercase tap hover:bg-slate-100"><i class="fa-solid fa-user text-blue-500 w-5"></i> Profile</div>
+        <div onclick="showScreen('api-screen')" class="p-4 bg-slate-50 rounded-xl flex items-center gap-4 text-sm font-bold text-slate-700 uppercase tap hover:bg-slate-100"><i class="fa-solid fa-code text-purple-500 w-5"></i> API System</div>
+        <div onclick="showScreen('pin-screen')" class="p-4 bg-slate-50 rounded-xl flex items-center gap-4 text-sm font-bold text-slate-700 uppercase tap hover:bg-slate-100"><i class="fa-solid fa-lock text-emerald-500 w-5"></i> Change PIN</div>
+        
+        <div onclick="window.open('https://t.me/+9HR0Qgf0UQpjODg1', '_blank')" class="p-4 bg-slate-50 rounded-xl flex items-center gap-4 text-sm font-bold text-blue-500 uppercase tap hover:bg-slate-100"><i class="fa-brands fa-telegram w-5 text-lg"></i> Join Channel</div>
+        <div onclick="window.open('https://t.me/ALPHAxBMW', '_blank')" class="p-4 bg-slate-50 rounded-xl flex items-center gap-4 text-sm font-bold text-orange-500 uppercase tap hover:bg-slate-100"><i class="fa-solid fa-headset w-5 text-lg"></i> Customer Support</div>
+
+        <div onclick="localStorage.clear(); location.href = location.origin;" class="p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-4 text-sm font-bold uppercase tap mt-8"><i class="fa-solid fa-right-from-bracket w-5"></i> Logout</div>
+    </div>
+</div>
+
+<!-- ==============================================
+     3. AUTHENTICATION (LOGIN & SIGNUP)
+=============================================== -->
+<div id="auth-screen" class="app-screen hidden fixed inset-0 bg-slate-50 p-6 flex flex-col justify-center items-center z-[999]">
+    <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4"><i class="fa-solid fa-wallet"></i></div>
+            <h1 class="text-2xl font-black text-slate-800 uppercase tracking-wide">Welcome Back</h1>
+            <p class="text-xs text-slate-500 font-medium mt-2">Login to your Prime Pay</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase tracking-wide">Mobile Number</label>
+                <div class="flex items-center bg-slate-50 rounded-xl px-4 border border-slate-200 focus-within:border-blue-500 transition">
+                    <span class="text-slate-600 font-bold text-sm pr-2 border-r border-slate-300">+91</span>
+                    <input type="number" id="login-phone" placeholder="10 Digit Number" class="w-full bg-transparent p-3.5 text-sm font-bold text-slate-800 focus:outline-none" oninput="if(this.value.length>10)this.value=this.value.slice(0,10);">
+                </div>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 mb-1 ml-1 uppercase tracking-wide">Password</label>
+                <input id="login-pass" type="password" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none">
+            </div>
+            <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold rounded-xl py-4 mt-2 shadow-lg shadow-blue-600/30 tap hover:bg-blue-700">LOGIN TO ACCOUNT</button>
+            <div class="text-center mt-6">
+                <p class="text-xs text-slate-500 font-medium">Don't have an account?</p>
+                <button onclick="showScreen('register-screen')" class="text-blue-600 font-bold text-sm mt-1 tap inline-block">Create new account</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="register-screen" class="app-screen hidden p-6 flex items-center justify-center bg-slate-50 min-h-screen z-[999]">
+    <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-black text-blue-600 uppercase tracking-wide">Create Account</h1>
+        </div>
+        <div class="space-y-4">
+            <input type="text" id="reg-name" placeholder="Full Name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none">
+            <div class="flex items-center bg-slate-50 rounded-xl px-4 border border-slate-200 focus-within:border-blue-500 transition">
+                <span class="text-slate-600 font-bold text-sm pr-2 border-r border-slate-300">+91</span>
+                <input type="number" id="reg-phone" placeholder="10 Digit Number" class="w-full bg-transparent p-3 text-sm font-bold text-slate-800 focus:outline-none" oninput="if(this.value.length>10)this.value=this.value.slice(0,10);">
+            </div>
+            <input type="password" id="reg-pass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none">
+            <input type="password" id="reg-pin" placeholder="4 - D I G I T  P I N" maxlength="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold focus:outline-none text-center">
+            <button onclick="handleRegister()" class="w-full bg-blue-600 text-white font-bold rounded-xl py-4 mt-4 shadow-lg tap">REGISTER ACCOUNT</button>
+            <div class="text-center"><button onclick="showScreen('auth-screen')" class="text-slate-500 font-bold text-sm tap">Back to Login</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- ==============================================
+     4. PIN VERIFICATION MODAL
+=============================================== -->
+<div id="pin-modal" class="fixed inset-0 bg-slate-900/90 z-[5000] hidden flex items-center justify-center p-6 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 text-center shadow-2xl">
+        <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Enter Security PIN</h3>
+        <input id="input-pin" type="password" readonly placeholder="••••" class="w-full bg-slate-50 p-5 mb-6 text-center text-3xl font-black text-slate-800 rounded-2xl outline-none tracking-[0.5em] border border-slate-100">
+        
+        <div class="grid grid-cols-3 gap-3">
+            <button onclick="document.getElementById('input-pin').value+='1'" class="tap h-14 bg-slate-50 rounded-xl text-xl font-bold text-slate-700 border border-slate-100">1</button>
+            <button onclick="document.getElementById('input-pin').value+='2'" class="tap h-14 bg-slate-50 rounded-xl text-xl font-bold text-slate-700 border border-slate-100">2</button>
+            <button onclick="document.getElementById('input-pin').value+='3'" class="tap h-14 bg-slate-50 rounded-xl text-xl font-bold text-sla        input, textarea, select { color: inherit !important; }
         input::placeholder, textarea::placeholder { color: #94a3b8; }
         
         /* --- DARK THEME OVERRIDES --- */
