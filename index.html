@@ -29,12 +29,71 @@
         input, textarea, select { color: #1e293b !important; background: transparent; }
         input::placeholder, textarea::placeholder { color: #94a3b8; }
         
-        /* Global Loader */
-        #global-loader {
-            position: fixed; inset: 0; background: #ffffff; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+        /* Global Loader CSS */
         .loader-wheel {
+            border: 4px solid #f1f5f9; border-left-color: #3b82f6; border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { margin-top: 15px; color: #3b82f6; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .coin-toss-anim { animation: flip 2s ease-in-out forwards; }
+        @keyframes flip { 
+            0% { transform: rotateY(0deg) scale(1); } 
+            50% { transform: rotateY(1800deg) scale(1.5); } 
+            100% { transform: rotateY(3600deg) scale(1); } 
+        }
+    </style>
+</head>
+<body class="max-w-md mx-auto bg-slate-50 relative overflow-x-hidden">
+
+<!-- LOADER WITH INLINE STYLES FOR SAFETY -->
+<div id="global-loader" style="position: fixed; inset: 0; background: #ffffff; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s ease;">
+    <div class="loader-wheel"></div>
+    <p class="loader-text">Loading...</p>
+</div>
+
+<!-- ======================================================== -->
+<!-- 🔥 ULTIMATE FAILSAFE: FORCE HIDE LOADER AFTER 1.5 SECS 🔥 -->
+<!-- ======================================================== -->
+<script>
+    setTimeout(function() {
+        var l = document.getElementById('global-loader');
+        if (l) l.style.display = 'none';
+    }, 1500);
+</script>
+
+<!-- 1. MAIN DASHBOARD -->
+<div id="main-dashboard" class="app-screen hidden pb-24">
+    <header class="p-6 flex justify-between items-center bg-white shadow-sm mb-6 rounded-b-3xl border-b border-slate-100">
+        <div onclick="document.getElementById('sidebar').classList.remove('-translate-x-full')" class="w-11 h-11 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center tap cursor-pointer">
+            <i class="fa-solid fa-bars-staggered text-blue-600"></i>
+        </div>
+        <h1 class="text-[11px] font-black tracking-[0.2em] text-blue-600 uppercase">Virtual Pocket</h1>
+        <div class="w-11 h-11 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-blue-600 tap">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+    </header>
+
+    <div class="px-6 space-y-6 text-center">
+        <!-- Balance Card -->
+        <div class="blue-grad p-8 rounded-[2.5rem] shadow-xl shadow-blue-200">
+            <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">Total Balance</p>
+            <h1 id="main-balance" class="text-4xl font-black tracking-tight">₹0.00</h1>
+        </div>
+
+        <!-- Action Grid -->
+        <div class="grid grid-cols-4 gap-3 bg-white p-4 rounded-[2rem] shadow-sm border border-slate-100">
+            <div onclick="showScreen('add-fund')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-plus text-blue-600 text-lg"></i></div>
+                <p class="text-[8px] uppercase font-black text-slate-600 tracking-wider">Add Fund</p>
+            </div>
+            <div onclick="showScreen('withdraw-screen')" class="tap cursor-pointer">
+                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-building-columns text-emerald-600 text-lg"></i></div>
+                <p class="text-[8px] uppercase font-black text-slate-600 tracking-wider">Withdraw</p>
+            </div>
+            <div onclick="showScreen('pay-screen')" class="tap cursor-pointer"        .loader-wheel {
             border: 4px solid #f1f5f9; border-left-color: #3b82f6; border-radius: 50%;
             width: 40px; height: 40px; animation: spin 1s linear infinite;
         }
