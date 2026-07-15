@@ -2,19 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRIME PAY</title>
-    
-    <!-- FontAwesome Icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIME PAY | Premium Wallet</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts: Poppins -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap');
-        
-        /* =========================================
-           PRIME PAY: DESIGN SYSTEM (VARIABLES)
-        ========================================= */
+
         :root {
             --bg-main: #0b111e;
             --bg-card: #111a2e;
@@ -23,18 +16,254 @@
             --prime-red: #ff0011;
             --text-white: #ffffff;
             --text-muted: #94a3b8;
-            
             --success: #10b981;
-            --success-bg: rgba(16, 185, 129, 0.15);
             --danger: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.15);
-            --warning: #f97316;
-            --warning-bg: rgba(249, 115, 22, 0.15);
-            --info: #3b82f6;
-            --info-bg: rgba(59, 130, 246, 0.15);
         }
 
-        /* =========================================
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-white); max-width: 500px; margin: 0 auto; min-height: 100vh; overflow-x: hidden; }
+
+        /* Animation & Tap */
+        .tap { transition: transform 0.1s ease-in-out; cursor: pointer; user-select: none; }
+        .tap:active { transform: scale(0.94) !important; }
+
+        /* Loader */
+        #global-loader { position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--bg-card); border-top: 3px solid var(--prime-purple); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Typography */
+        .brand-logo { font-weight: 800; font-style: italic; text-transform: uppercase; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .brand-logo .red { color: var(--prime-red); }
+
+        /* UI Components */
+        .app-screen { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; padding: 20px; margin-bottom: 20px; }
+        .btn-prime { background: var(--prime-purple); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; font-size: 1rem; margin-top: 10px; }
+        
+        input { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: white; padding: 16px; border-radius: 14px; margin-bottom: 15px; outline: none; font-size: 1rem; }
+        input:focus { border-color: var(--prime-purple); }
+
+        /* Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--bg-card); border-radius: 0 0 25px 25px; margin-bottom: 20px; }
+        .icon-btn { width: 45px; height: 45px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+        /* Dashboard Specific */
+        .balance-box { background: linear-gradient(135deg, #6b21a8, #a855f7); padding: 30px 20px; text-align: center; border: none; }
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .action-item { text-align: center; }
+        .action-item .icon { width: 55px; height: 55px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: var(--prime-purple); font-size: 1.3rem; }
+        .action-item span { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+
+        /* Sidebar */
+        #sidebar { position: fixed; left: -100%; top: 0; width: 80%; max-width: 300px; height: 100%; background: var(--bg-card); z-index: 2000; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px; border-right: 1px solid var(--border-color); }
+        #sidebar.active { left: 0; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; backdrop-filter: blur(4px); }
+
+        /* PIN Modal */
+        #pin-modal { position: fixed; inset: 0; background: var(--bg-main); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .pin-dots { display: flex; gap: 15px; margin-bottom: 40px; }
+        .dot { width: 15px; height: 15px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); }
+        .dot.active { background: var(--prime-purple); box-shadow: 0 0 10px var(--prime-purple); }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 280px; }
+        .num-btn { background: var(--bg-card); border: 1px solid var(--border-color); color: white; aspect-ratio: 1; border-radius: 50%; font-size: 1.5rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div id="global-loader"><div class="spinner"></div></div>
+
+<!-- Auth Screen -->
+<div id="auth-screen" class="app-screen" style="display: block;">
+    <div style="text-align: center; margin: 60px 0;">
+        <h1 class="brand-logo"><span class="red">PRIME</span> PAY</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Login to your digital vault</p>
+    </div>
+    <div class="card">
+        <input type="number" id="login-phone" placeholder="Mobile Number">
+        <input type="password" id="login-pass" placeholder="Password">
+        <button class="btn-prime tap" onclick="handleLogin()">SECURE LOGIN</button>
+    </div>
+</div>
+
+<!-- Main Dashboard -->
+<div id="main-dashboard" class="app-screen">
+    <header>
+        <div class="icon-btn tap" onclick="toggleSidebar()"><i class="fa-solid fa-bars-staggered"></i></div>
+        <h1 class="brand-logo"><span class="red">PRIME</span> PAY</h1>
+        <div class="icon-btn tap"><i class="fa-solid fa-bell"></i></div>
+    </header>
+
+    <div class="card balance-box tap">
+        <p style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Wallet Balance</p>
+        <h2 id="display-balance" style="font-size: 2.8rem; margin: 10px 0;">₹0.00</h2>
+        <div style="background: rgba(0,0,0,0.2); padding: 6px 15px; border-radius: 20px; display: inline-block; font-size: 0.7rem;">Verified Account</div>
+    </div>
+
+    <div class="card action-grid">
+        <div class="action-item tap" onclick="showScreen('add-fund')"><div class="icon"><i class="fa-solid fa-plus"></i></div><span>Add</span></div>
+        <div class="action-item tap" onclick="showScreen('withdraw-screen')"><div class="icon"><i class="fa-solid fa-building-columns"></i></div><span>Withdraw</span></div>
+        <div class="action-item tap" onclick="showScreen('pay-screen')"><div class="icon"><i class="fa-solid fa-paper-plane"></i></div><span>Send</span></div>
+        <div class="action-item tap" onclick="showScreen('history-screen')"><div class="icon"><i class="fa-solid fa-history"></i></div><span>History</span></div>
+    </div>
+</div>
+
+<!-- Add Fund -->
+<div id="add-fund" class="app-screen">
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+        <div class="icon-btn tap" onclick="showScreen('main-dashboard')"><i class="fa-solid fa-arrow-left"></i></div>
+        <h2 style="font-size: 1.2rem;">Add Money</h2>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="background: white; padding: 15px; border-radius: 20px; display: inline-block; margin-bottom: 20px;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PRIME_PAY_DEPOSIT" style="width: 150px; height: 150px;">
+        </div>
+        <input type="number" id="deposit-amt" placeholder="Enter Amount (₹)">
+        <input type="text" id="deposit-utr" placeholder="12 Digit UTR Number">
+        <button class="btn-prime tap" onclick="openPIN('DEPOSIT')">SUBMIT REQUEST</button>
+    </div>
+</div>
+
+<!-- PIN Modal -->
+<div id="pin-modal">
+    <h2 style="margin-bottom: 5px;">Security PIN</h2>
+    <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.9rem;">Authorize Transaction</p>
+    <div class="pin-dots">
+        <div class="dot" id="dot1"></div><div class="dot" id="dot2"></div><div class="dot" id="dot3"></div><div class="dot" id="dot4"></div>
+    </div>
+    <div class="numpad">
+        <button class="num-btn tap" onclick="pressPin(1)">1</button>
+        <button class="num-btn tap" onclick="pressPin(2)">2</button>
+        <button class="num-btn tap" onclick="pressPin(3)">3</button>
+        <button class="num-btn tap" onclick="pressPin(4)">4</button>
+        <button class="num-btn tap" onclick="pressPin(5)">5</button>
+        <button class="num-btn tap" onclick="pressPin(6)">6</button>
+        <button class="num-btn tap" onclick="pressPin(7)">7</button>
+        <button class="num-btn tap" onclick="pressPin(8)">8</button>
+        <button class="num-btn tap" onclick="pressPin(9)">9</button>
+        <button class="num-btn tap" style="color: var(--danger);" onclick="clearPin()">C</button>
+        <button class="num-btn tap" onclick="pressPin(0)">0</button>
+        <button class="num-btn tap" style="color: var(--success);" onclick="submitPin()"><i class="fa-solid fa-check"></i></button>
+    </div>
+    <button class="tap" onclick="closePIN()" style="background: none; border: none; color: var(--text-muted); margin-top: 30px; font-weight: 600;">Cancel</button>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="sidebar">
+    <h2 class="brand-logo" style="margin-bottom: 40px;"><span class="red">PRIME</span> PAY</h2>
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="tap" style="display:flex; align-items:center; gap:15px;"><i class="fa-solid fa-user"></i> Profile</div>
+        <div class="tap" style="display:flex; align-items:center; gap:15px;"><i class="fa-solid fa-gear"></i> API Settings</div>
+        <div class="tap" style="display:flex; align-items:center; gap:15px;"><i class="fa-solid fa-lock"></i> Change PIN</div>
+        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
+        <div class="tap" onclick="location.reload()" style="color: var(--danger); display:flex; align-items:center; gap:15px;"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+    </div>
+</div>
+
+<script>
+    let userData = { balance: 2500.50, pin: "1234" };
+    let currentTask = "";
+    let inputPin = "";
+
+    // Web Audio Tick
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTick() {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // Sound Bind
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.tap') || e.target.tagName === 'BUTTON') playTick();
+    });
+
+    // Navigation
+    function showScreen(id) {
+        document.querySelectorAll('.app-screen').forEach(s => s.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+        toggleSidebar(true);
+    }
+
+    function toggleSidebar(forceClose = false) {
+        const side = document.getElementById('sidebar');
+        const over = document.querySelector('.sidebar-overlay');
+        if(side.classList.contains('active') || forceClose) {
+            side.classList.remove('active');
+            over.style.display = 'none';
+        } else {
+            side.classList.add('active');
+            over.style.display = 'block';
+        }
+    }
+
+    function handleLogin() {
+        const p = document.getElementById('login-phone').value;
+        if(p.length === 10) {
+            loader(true);
+            setTimeout(() => {
+                loader(false);
+                showScreen('main-dashboard');
+                updateUI();
+            }, 1000);
+        } else alert("Invalid Mobile Number");
+    }
+
+    function updateUI() {
+        document.getElementById('display-balance').innerText = `₹${userData.balance.toLocaleString('en-IN')}`;
+    }
+
+    // PIN System
+    function openPIN(task) {
+        currentTask = task;
+        inputPin = "";
+        updatePinDots();
+        document.getElementById('pin-modal').style.display = 'flex';
+    }
+
+    function closePIN() { document.getElementById('pin-modal').style.display = 'none'; }
+
+    function pressPin(n) {
+        if(inputPin.length < 4) {
+            inputPin += n;
+            updatePinDots();
+        }
+    }
+
+    function clearPin() { inputPin = ""; updatePinDots(); }
+
+    function updatePinDots() {
+        for(let i=1; i<=4; i++) {
+            document.getElementById(`dot${i}`).classList.toggle('active', i <= inputPin.length);
+        }
+    }
+
+    function submitPin() {
+        if(inputPin === userData.pin) {
+            alert(currentTask + " Successful!");
+            closePIN();
+            showScreen('main-dashboard');
+        } else {
+            alert("Incorrect PIN");
+            clearPin();
+        }
+    }
+
+    function loader(show) { document.getElementById('global-loader').style.display = show ? 'flex' : 'none'; }
+
+    window.onload = () => { setTimeout(() => loader(false), 1200); };
+</script>
+</body>
+        </html>        /* =========================================
            RESET & BASE STYLES
         ========================================= */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
