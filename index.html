@@ -3,38 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SUPER WALLET | Premium Fintech</title>
+    <title>SUPER WALLET | Design Preview</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background: #f8fafc; 
-            color: #0f172a; 
-            transition: background-color 0.4s ease;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* --- Jarvis Star Particles --- */
+        body { font-family: 'Poppins', sans-serif; background: #f8fafc; color: #0f172a; transition: background-color 0.4s ease; overflow-x: hidden; min-height: 100vh; }
         #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-
-        /* --- Glassmorphism & Tiers --- */
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px; }
         .blue-grad { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); color: white; }
-        
         .tap { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
         .tap:active { transform: scale(0.95); }
-
-        /* --- Dark Mode Overrides --- */
         body.dark-theme { background-color: #020617 !important; color: #ffffff !important; }
         body.dark-theme .glass { background: rgba(15, 23, 42, 0.8) !important; border-color: rgba(255, 255, 255, 0.1) !important; }
         body.dark-theme .bg-white { background-color: #0f172a !important; }
-        body.dark-theme input, body.dark-theme textarea { background-color: rgba(0,0,0,0.3) !important; color: white !important; border-color: #1e293b !important; }
+        body.dark-theme input { background-color: rgba(0,0,0,0.3) !important; color: white !important; }
+        .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
+        .dark-theme .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
+        @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .app-screen { min-height: 100vh; width: 100%; }
+        #global-loader { position: fixed; inset: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="max-w-md mx-auto relative">
 
-        /* --- Skeleton Animation --- */
+<canvas id="star-canvas"></canvas>
+
+<div id="global-loader">
+    <div class="w-10 h-10 border-4 border-slate-100 border-t-indigo-600 rounded-full animate-spin"></div>
+    <p class="mt-4 font-bold text-indigo-600 tracking-widest text-[10px] uppercase">Super Wallet Secure...</p>
+</div>
+
+<!-- 1. LOGIN SCREEN -->
+<div id="auth-screen" class="app-screen flex items-center justify-center p-6">
+    <div class="w-full glass p-8 space-y-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-indigo-600 text-white rounded-[1.5rem] flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg"><i class="fa-solid fa-bolt"></i></div>
+            <h1 class="text-2xl font-black uppercase">Super Wallet</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Design Preview Mode</p>
+        </div>
+
+        <div class="flex p-1 bg-slate-100 dark:bg-slate-800 rounded-xl gap-1">
+            <button onclick="toggleAuthMode('pass')" id="btn-pass-mode" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all bg-white dark:bg-slate-700 shadow-sm">PASSWORD</button>
+            <button onclick="toggleAuthMode('otp')" id="btn-otp-mode" class="flex-1 py-2 text-[10px] font-black rounded-lg transition-all text-slate-400">TELEGRAM OTP</button>
+        </div>
+
+        <div class="space-y-4">
+            <input type="number" value="9876543210" placeholder="Mobile Number" class="w-full bg-white border border-slate-200 dark:border-slate-700 p-4 rounded-2xl outline-none font-bold">
+            <div id="pass-box"><input type="password" value="123456" placeholder="Password" class="w-full bg-white border border-slate-200 dark:border-slate-700 p-4 rounded-2xl outline-none font-bold"></div>
+            <div id="otp-box" class="hidden flex gap-2">
+                <input type="number" placeholder="6-Digit OTP" class="flex-1 bg-white border border-slate-200 dark:border-slate-700 p-4 rounded-2xl outline-none font-bold">
+                <button class="bg-indigo-600 text-white px-4 rounded-2xl text-[10px] font-black">SEND</button>
+            </div>
+            <button onclick="mockLogin()" class="w-full blue-grad py-4 rounded-2xl font-black shadow-lg tap">ACCESS WALLET</button>
+        </div>
+        <p class="text-center text-[10px] font-bold text-slate-500">New? <span class="text-indigo-600 tap" onclick="showScreen('register-screen')">Create new account</span></p>
+    </div>
+</div>
+
+<!-- 2. REGISTER SCREEN -->
+<div id="register-screen" class="app-screen hidden flex flex-col justify-center p-6">
+    <div class="w-full glass p-8 space-y-4">
+        <div class="text-center mb-4">
+            <h2 class="text-xl font-black uppercase text-indigo-600">Register</h2>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Join Super Wallet</p>
+        </div>
+        <input type="text" placeholder="Full Name" class="w-full bg-white border p-4 rounded-2xl outline-none font-bold">
+        <input type="number" placeholder="Mobile Number" class="w-full bg-white border p-4 rounded-2xl outline-none font-bold">
+        <input type="password" placeholder="Create Password" class="w-full bg-white border p-4 rounded-2xl outline-none font-bold">
+        <button onclick="mockLogin()" class="w-full blue-grad py-4 rounded-2xl font-black tap mt-4">CREATE WALLET</button>
+        <button onclick="showScreen('auth-screen')" class="w-full text-[10px] font-bold text-slate-400 uppercase tap">Back to login</button>
+    </div>
+</div>
+
+<!-- 3. MAIN DASHBOARD -->
+<div id="main-dashboard" class="app-screen hidden pb-24">
+    <header class="p-6 flex justify-between items-center glass m-4 sticky top-2 z-40">
+        <div onclick="toggleSidebar(true)" class="w-10 h-10 flex items-center justify-center tap bg-indigo-50 dark:bg-slate-800 rounded-xl"><i class="fa-solid fa-bars-staggered text-indigo-600"></i></div>
+        <div class="text-center"><h1 class="font-black italic text-indigo-600 text-lg">SUPER WALLET</h1><p class="text-[8px] font-bold bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full uppercase">VIP Elite</p></div>
+        <div id="themeToggleBtn" class="w-10 h-10 flex items-center justify-center tap bg-indigo-50 dark:bg-slate-800 rounded-xl text-slate-600"><i class="fa-solid fa-moon"></i></div>
+    </header>
+
+    <div id="dash-skeleton" class="px-6 space-y-6">
+        <div class="skeleton h-40 rounded-[2.5rem]"></div>
+        <div class="grid grid-cols-4 gap-3"><div class="skeleton h-16 rounded-2xl"></div><div class="skeleton h-16 rounded-2xl"></div><div class="skeleton h-16 rounded-2xl"></div><div class="skeleton h-16 rounded-2xl"></div></div>
+    </div>
+
+    <div id="dash-content" class="hidden px-6 space-y-6">
+        <div class="blue-grad p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden tap">
+            <div class="relative z-10"><p class="text-[10px] font-bold opacity-80 uppercase tracking-widest mb-1">Total Balance</p><h1 class="text-4xl font-black">₹5,240.50</h1></div>
+            <div class="absolute -right-4 -bottom-4 opacity-10 text-8xl"><i class="fa-solid fa-wallet"></i></div>
+        </div>
+        <div class="grid grid-cols-4 gap-3 glass p-4">
+            <div class="tap text-center" onclick="showScreen('add-fund')"><div class="w-12 h-12 bg-indigo-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-plus text-indigo-600"></i></div><p class="text-[8px] font-bold uppercase">Add</p></div>
+            <div class="tap text-center"><div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-building-columns text-emerald-600"></i></div><p class="text-[8px] font-bold uppercase">Cashout</p></div>
+            <div class="tap text-center"><div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-paper-plane text-purple-600"></i></div><p class="text-[8px] font-bold uppercase">Send</p></div>
+            <div class="tap text-center"><div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mb-2 mx-auto"><i class="fa-solid fa-clock-rotate-left text-orange-600"></i></div><p class="text-[8px] font-bold uppercase">History</p></div>
+        </div>
+        <div class="glass p-6 text-left space-y-4">
+            <h3 class="text-xs font-black text-indigo-600 uppercase tracking-widest">Active Plan</h3>
+            <div class="flex justify-between items-center bg-indigo-50 dark:bg-slate-800 p-4 rounded-2xl">
+                <div><p class="text-sm font-bold">Gold Tier</p><p class="text-[10px] text-slate-500">Low Withdrawal Fees</p></div>
+                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 z-[1000] shadow-2xl transform -translate-x-full transition-transform duration-300">
+    <div class="p-8 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+        <h2 class="font-black text-indigo-600 uppercase text-xs">Settings</h2>
+        <i onclick="toggleSidebar(false)" class="fa-solid fa-xmark tap text-xl text-slate-400"></i>
+    </div>
+    <div class="p-6 space-y-2"><div onclick="logout()" class="p-4 glass flex items-center gap-3 text-xs font-black uppercase tap text-red-500"><i class="fa-solid fa-power-off"></i> Logout</div></div>
+</div>
+
+<!-- ADD FUND PREVIEW -->
+<div id="add-fund" class="app-screen hidden p-6">
+    <button onclick="showScreen('main-dashboard')" class="mb-4 tap bg-white p-2 rounded-lg shadow"><i class="fa-solid fa-arrow-left"></i> Back</button>
+    <div class="glass p-8 text-center">
+        <h2 class="font-black mb-4 uppercase text-indigo-600">Deposit Money</h2>
+        <img src="https://i.ibb.co/k2fMFWx1/file-00000000597471fa88f5470b7b45225f.png" class="mx-auto rounded-3xl w-56 h-56 border-4 border-white shadow-2xl">
+        <p class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Scan QR to pay admin</p>
+    </div>
+</div>
+
+<script>
+// --- DESIGN PREVIEW LOGIC (NO BACKEND NEEDED) ---
+
+function mockLogin() {
+    loader(true);
+    setTimeout(() => {
+        loader(false);
+        showScreen('main-dashboard');
+        // Skeleton logic
+        setTimeout(() => {
+            document.getElementById('dash-skeleton').classList.add('hidden');
+            document.getElementById('dash-content').classList.remove('hidden');
+        }, 1500);
+    }, 800);
+}
+
+function showScreen(id) {
+    document.querySelectorAll('.app-screen').forEach(s => s.classList.add('hidden'));
+    const target = document.getElementById(id);
+    if(target) target.classList.remove('hidden');
+    toggleSidebar(false);
+}
+
+function toggleAuthMode(mode) {
+    document.getElementById('pass-box').classList.toggle('hidden', mode === 'otp');
+    document.getElementById('otp-box').classList.toggle('hidden', mode === 'pass');
+    document.getElementById('btn-pass-mode').classList.toggle('bg-white', mode === 'pass');
+    document.getElementById('btn-otp-mode').classList.toggle('bg-white', mode === 'otp');
+}
+
+function toggleSidebar(show) { document.getElementById('sidebar').classList.toggle('-translate-x-full', !show); }
+function loader(show) { document.getElementById('global-loader').style.display = show ? 'flex' : 'none'; }
+function logout() { location.reload(); }
+
+// --- JARVIS STAR ENGINE ---
+const canvas = document.getElementById('star-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function initStars() {
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight; stars = [];
+    for(let i=0; i<70; i++) stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2, speed: Math.random() * 0.5 + 0.1 });
+}
+function animateStars() {
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = document.body.classList.contains('dark-theme') ? '#00f0ff' : '#6366f1';
+    stars.forEach(s => {
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
+        s.y -= s.speed; if(s.y < 0) { s.y = canvas.height; s.x = Math.random() * canvas.width; }
+    });
+    requestAnimationFrame(animateStars);
+}
+
+window.onload = () => {
+    initStars(); animateStars();
+    setTimeout(() => loader(false), 1000);
+};
+
+const themeBtn = document.getElementById('themeToggleBtn');
+themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    themeBtn.querySelector('i').classList.toggle('fa-sun');
+    themeBtn.querySelector('i').classList.toggle('fa-moon');
+});
+window.onresize = initStars;
+</script>
+</body>
+</html>        /* --- Skeleton Animation --- */
         .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: skeleton-loading 1.5s infinite; }
         .dark-theme .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
         @keyframes skeleton-loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
